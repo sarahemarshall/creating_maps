@@ -1,7 +1,7 @@
 ---
-title: "Creating Maps in R: Exercises"
-subtile: "Auckland R Ladies Meetup Group"
-author: "Sarah Marshall"
+title: "Auckland R Ladies Meetup"
+subtitle: "Creating Maps in R: Exercises"
+author: "Dr Sarah Marshall, Senior Lecturer, Dept Mathematical Sciences, AUT"
 date: "12 September 2018"
 output: 
   html_document: 
@@ -40,7 +40,7 @@ The R package `tmap` provides an easy way of creating  "**t**hematic"
 maps.
 
 
-```{r}
+```{r tmap_tip}
 library(tidyverse)
 library(tmap)
 
@@ -99,7 +99,7 @@ tmap_mode("plot")
 You can merge your own data with ```World``` and display it on the graph.  Here, we use random numbers to demonstrate the concept.
 ```{r world_rand}
 World$rand <- rnorm(dim(World)[1],0,1)
-tm_shape(World) + tm_polygons("rand")
+tm_shape(World) + tm_polygons("rand", midpoint = NA)
 ```
 
 
@@ -230,25 +230,30 @@ qmap(location="AUT university", zoom=17, maptype = "satellite")
 ```
 
 
-We will now add a marker our current location.  
+We will now add a marker our current location.  First 
+we will get the coordinates of our current location with the ```geocode``` function.
+
+
 ```{r WZmap_setup}
 wz <- "WZ building, AUT university"
 wz_gc <- geocode(wz)
+wz_gc
+```
 
-g <- qmap(location="WZ building, AUT, NZ", maprange = TRUE, zoom=18,
+Now we will create a map.
+```{r WZmap_setup2}
+g <- qmap(location="AUT, NZ", maprange = TRUE, zoom=18,
           maptype = "satellite", 
           base_layer = ggplot(aes(x=lon, y=lat), data = wz_gc )) 
 ```
 
-```{r WZmap}
+```{r WZmap, fig.show='hide'}
 g + geom_point(colour="purple", size=5) 
 ```
 
-Notice that we used the ```geocode``` function. This function returns the longitude and lattitude of a location
+![](WZmap-1.png)
 
-```{r}
-wz_gc
-```
+
 
 Note: since these functions are querying google, there are some limitations
 in terms of maximum queries per day (2500) and per second.
@@ -306,7 +311,7 @@ y = jitter(rep(wz_gc$lat, 10), amount = .01)
 ), digits = 3)
 
 # Create the map
-map <- get_googlemap(wz, markers = df, path = df, scale = 2, zoom=14)
+map <- get_googlemap("St Pauls street, Auckland", markers = df, path = df, scale = 2, zoom=14)
 
 # Plot the map
 f <- ggmap(map, extent = 'device')
@@ -446,10 +451,10 @@ locations <- data.frame(city = c("Auckland", "Taupo", "Wellington"), stringsAsFa
 
 # Get long & lat for locations
 # Option 1: using geocode
-locations <- cbind(geocode(locations$city), locations)
+# locations <- cbind(geocode(locations$city), locations)
 # Option 2: using data from elsewhere
-#locations$lon <- c(174.7633, 176.0702, 174.7762)
-#locations$lat <- c(-36.84846, -38.68569, -41.28646)
+locations$lon <- c(174.7633, 176.0702, 174.7762)
+locations$lat <- c(-36.84846, -38.68569, -41.28646)
 
 
 summary(locations)
@@ -482,7 +487,7 @@ Useful overview of key R packages <https://www.computerworld.com/article/2921176
 
 
 
-# Acknowledgements/References
+# Acknowledgements & References
 
 * Rick Dalliessi, former student, provided initial Leaflet code
 

@@ -1,8 +1,11 @@
 ---
-title: "Creating Maps in R \n Auckland R Ladies Meetup "
-author: "Sarah Marshall"
+title: "Auckland R Ladies Meetup"
+subtitle: "Creating Maps in R"
+author: "Dr Sarah Marshall, Senior Lecturer, Dept Mathematical Sciences, AUT"
 date: "12 September 2018"
-output:   slidy_presentation
+output: 
+  slidy_presentation:
+     footer: "sarah.marshall@aut.ac.nz"
 ---
  
 
@@ -24,11 +27,20 @@ library(ggmap)
 ## Welcome to the R Ladies Meet Up: Creating Maps in R
 
 * Wifi: Connect to **autwifi** (username and password on the white board)
-* Download the session files from github  
+* Download the zip file from github: <https://github.com/sarahemarshall/creating_maps>  
 * Run session_prep.R to install the required R packages
 
 
-## What did you do on Saturday night?
+## Overview
+
+**Types of maps**
+
+**R packages**
+
+**Exercises**
+
+
+## Can you guess what I did on Saturday night?
 
 ```{r spark, eval=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 spark <- geocode("Spark Arena, Auckland")
@@ -39,7 +51,9 @@ g
 ```
 ![](spark.png)
 
-## What did you do on Saturday night?
+R package:  ```ggmap```
+
+## Can you guess what I did on Saturday night?
 
 ```{r pinkspark, eval=FALSE,echo=FALSE, message=FALSE, warning=FALSE}
 g + geom_point(colour="hotpink", size=8) 
@@ -48,8 +62,9 @@ g + geom_point(colour="hotpink", size=8)
 
 ![](pinkspark.png)
 
+R package:  ```ggmap```
 
-## World Map
+## World map
 
 ```{r pink_world1, echo=FALSE, message=FALSE, warning=FALSE}
 pink_gc <- read.csv("data/pink_gc.csv")
@@ -64,7 +79,9 @@ w <- ggplot(WorldData, aes(x=long, y=lat, group = group)) +
 w
 ```
 
-## World Map without axes 
+R package:  ```ggplot2```
+
+## World map without axes 
 
 ```{r pink_world2, echo=FALSE, message=FALSE, warning=FALSE}
 w <- ggplot(WorldData, aes(x=long, y=lat, group = group)) +
@@ -73,10 +90,13 @@ w <- ggplot(WorldData, aes(x=long, y=lat, group = group)) +
   scale_x_continuous(breaks=c()) + 
   labs(x="", y="")+
   coord_fixed(ratio=1.3)
-w
+w 
+
 ```
 
-## World Map: P!nk's Beautiful Trauma Tour
+R package:  ```ggplot2```
+
+## World map: P!nk's Beautiful Trauma Tour
 
 ```{r pink_world3, echo=FALSE, message=FALSE, warning=FALSE}
 w <- ggplot(WorldData, aes(x=long, y=lat, group = group)) +
@@ -91,9 +111,9 @@ w +   geom_point(data = pink_gc2, aes(x = lon, y = lat, group=NULL),col="hotpink
   coord_fixed(ratio=1.3)
 ```
 
+R package:  ```ggplot2```
 
-
-## World Map of Population
+## World map showing population by country
 
 
 ```{r world_life_exp, echo=FALSE}
@@ -105,7 +125,9 @@ data("World")
 tm_shape(World) + tm_polygons("life_exp",  palette = "Purples") 
 ```
 
-## World Map of Population with Layers
+R package:  ```tmap```
+
+## World map showing population of cities 
 ```{r world_elevation, echo=FALSE}
 data(World, metro, rivers, land)
 tm_shape(land) + 
@@ -118,12 +140,14 @@ tm_shape(metro) +
 tm_legend(show = FALSE)
 ```
 
+R package:  ```tmap```
 
 
-## World Map of Population with Animations
+## World map showing population growth over time
 
 ```{r eval=FALSE, echo=FALSE}
 data(World, metro)
+# Animation requires https://www.imagemagick.org/
 
 m2 <- tm_shape(World, simplify = 0.5) +
   tm_fill() +
@@ -133,7 +157,7 @@ m2 <- tm_shape(World, simplify = 0.5) +
              border.col = "black", border.alpha = .5,
              scale = 2) +
   tm_facets(free.scales.symbol.size = FALSE, nrow=1,ncol=1) + 
-  tm_format("World", scale=.5)
+  tm_format("World", scale=.5) 
 
 tmap_animation(m2, filename="WorldPopulation.gif", width=1200, delay=100)
 
@@ -142,9 +166,56 @@ tmap_animation(m2, filename="WorldPopulation.gif", width=1200, delay=100)
 
 Adapted from <https://geocompr.robinlovelace.net/adv-map.html>
 
+R package:  ```tmap```
 
 
-## NZ Map 
+## World map showing population growth over time
+```{r, eval=FALSE, echo=FALSE}
+library(readxl) 
+library(rmapshaper)
+# Animation requires https://www.imagemagick.org/
+
+# Option 1: Download data manually 
+world_popn_fname_local <-"data/API_SP.POP.TOTL_DS2_en_excel_v2_10080862.xls"
+
+# Option 2: Download data within R
+# world_popn_url <- "http://api.worldbank.org/v2/en/indicator/SP.POP.TOTL?downloadformat=excel"
+# world_popn_fname_local <- "SP_POP.xls"  #Save excel file locally
+# curl::curl_download(world_popn_url, world_popn_fname_local)
+
+# Import data into R
+SP_POP <- read_excel(world_popn_fname_local, sheet = "Data", skip = 3)
+#View(SP_POP)
+
+data("World")
+
+# Country names can differ so we will add the 3 letter country code to the map data
+World_full<- merge(World, SP_POP, by.x="iso_a3", by.y="Country Code", all.x=TRUE)
+
+along_names <- paste0("X", seq(1960, 2017, by=1))
+summary(World_full[,along_names])   
+
+m2 <- tm_shape(World_full, simplify = 0.5) +
+  tm_fill(col=along_names,title=sub("X", "", along_names),
+          breaks=c(0, 1E6, 5E6, 1E7, 1E8, 1E9, 1E10)
+          #, palette = "RdBu"
+          ) +
+  tm_facets(free.scales.symbol.size = FALSE, nrow=1,ncol=1) + 
+  tm_format("World", scale=.5)   + 
+  tm_layout(main.title="World Population", main.title.size = 0.5)
+
+#m2
+tmap_animation(m2, filename="WorldPopulationTime.gif", width=1200, delay=20, restart.delay = 100)
+```
+
+![](WorldPopulationTime.gif)
+
+Data source: World Bank
+
+R package:  ```tmap```
+
+
+## NZ map 
 ```{r, echo=FALSE}
 library(readxl)
 library(leaflet)
@@ -158,7 +229,10 @@ leaflet() %>%
   setView(lng = 174, lat = -41, zoom = 5) 
 ```
 
-## Auckland Map
+R package:  ```leaflet```
+
+
+## Auckland map
 
 
 ```{r loadshape_data, echo=FALSE, results="hide"}
@@ -242,14 +316,19 @@ m <- leaflet(auckland_small) %>%
   setView(lng = 174.8, lat = -36.80, zoom = 9) 
 m
 ```
+Data source: Statistics New Zealand
 
-## Auckland Map with Area Units
+R package:  ```leaflet```
+
+## Auckland map with area units (from shape file)
 ```{r auckland_map_AU}
 m  %>% addPolygons()
 ```
+Data source: Statistics New Zealand
 
+R package:  ```leaflet```
 
-## Auckland Map with Income and Rent
+## Auckland map with income and rent
 ```{r auckland_map_AU_income, echo=FALSE}
 
 
@@ -265,7 +344,10 @@ mapview::latticeView(income, rent, ncol = 2, sync = list(c(1, 2)), sync.cursor =
 
 ```
 
+Data source: Statistics New Zealand
  
+R package:  ```leaflet```
+
 ## Overview
 
 **Types of maps**
@@ -278,6 +360,35 @@ mapview::latticeView(income, rent, ncol = 2, sync = list(c(1, 2)), sync.cursor =
 * leaflet
 
 **Exercises**
+
+
+
+## References &  Acknowledgements 
+
+
+* Rick Dalliessi, former student, provided initial Leaflet code
+
+* M. Tennekes (2018). “tmap: Thematic Maps in R.” _Journal of Statistical Software_, *84*(6), 1-39. doi:
+<10.18637/jss.v084.i06 (URL: http://doi.org/10.18637/jss.v084.i06)>.
+
+* D. Kahle and H. Wickham. ggmap: Spatial Visualization with ggplot2. The R Journal, 5(1), 144-161. URL
+  <http://journal.r-project.org/archive/2013-1/kahle-wickham.pdf>
+
+* Joe Cheng, Bhaskar Karambelkar and Yihui Xie (2018). leaflet: Create Interactive Web Maps with the JavaScript  'Leaflet' Library. R package version 2.0.1. <https://CRAN.R-project.org/package=leaflet>
+
+
+
+## Resources
+* Good overview of mapping tools <https://cran.r-project.org/doc/contrib/intro-spatial-rl.pdf>
+
+* <https://rpubs.com/nickbearman/r-google-map-making>
+
+* Good introduction to the ggmap package  <http://stat405.had.co.nz/ggmap.pdf>  
+
+* More advanced information about geo-data <https://geocompr.robinlovelace.net/adv-map.html>
+
+
+* Useful overview of key R packages <https://www.computerworld.com/article/2921176/business-intelligence/great-r-packages-for-data-import-wrangling-visualization.html>
 
 
 

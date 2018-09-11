@@ -6,11 +6,6 @@ requiredPackages <- c("knitr",  "tidyverse","ggplot2", "maps",
                       "sp", "ggplot2", "leaflet", "readxl", "readr", 
                       "ggmap",  "tmap", "tmaptools" )
 
-# ("knitr",  "tidyverse",  "rgdal", "rgeos", 
-#   "ggmap",  "tmap", "leaflet", "readxl", "readr", 
-#   "ggplot2", "maps",  "maptools", "sp"
-# )
-
 # Install all packages
 install.packages(requiredPackages, dependencies=TRUE)
 

@@ -18,6 +18,10 @@ knitr::opts_chunk$set(fig.width=8,
                       #out.height="1200px",
                       fig.path="",
                       fig.align="center")
+
+# Set to TRUE to make leaflet maps. Setting to FALSE speeds up compile time.
+# Used in chunk optione  EVAL option
+makeLeafletMaps <- TRUE
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -30,6 +34,7 @@ library(ggmap)
 * Download the zip file from github: <https://github.com/sarahemarshall/creating_maps>  
 * Run session_prep.R to install the required R packages
 
+ 
 
 ## Overview
 
@@ -235,8 +240,8 @@ R package:  ```leaflet```
 ## Auckland map
 
 
-```{r loadshape_data, echo=FALSE, results="hide"}
-# Data file webpate http://archive.stats.govt.nz/browse_for_stats/Maps_and_geography/Geographic-areas/digital-boundary-files.aspx
+```{r loadshape_data, eval=makeLeafletMaps, echo=FALSE, results="hide"}
+# Data file webpage http://archive.stats.govt.nz/browse_for_stats/Maps_and_geography/Geographic-areas/digital-boundary-files.aspx
 # Data file link http://www3.stats.govt.nz/digitalboundaries/annual/ESRI_Shapefile_2017_Digital_Boundaries_Generalised_Clipped.zip?_ga=2.106507014.446711510.1536620893-202953112.1470866239
 
 fpath <- "data/AU2017_GV_Clipped.shp"
@@ -253,7 +258,7 @@ object.size(NZ_areaUnitShapes)
 ```
 
 
-```{r mergedata, echo=FALSE, results="hide"}
+```{r mergedata, eval=makeLeafletMaps, echo=FALSE, results="hide"}
 #Note: 2017 shape files are used with 2013 census data.
 
 #http://archive.stats.govt.nz/Census/2013-census/data-tables/meshblock-dataset.aspx
@@ -300,7 +305,7 @@ print(object.size(auckland_areaUnitShapes), units="auto")
 print(object.size(auckland_small), units="auto")
 ```
 
-```{r auckland_map, echo=FALSE}
+```{r auckland_map, eval=makeLeafletMaps, echo=FALSE}
 incomeColors <- colorBin("BuPu", domain = c(0, 150000)
                          , bins = seq(0, 150000, length.out=6),
                          na.color = "#808080")
@@ -321,7 +326,7 @@ Data source: Statistics New Zealand
 R package:  ```leaflet```
 
 ## Auckland map with area units (from shape file)
-```{r auckland_map_AU}
+```{r auckland_map_AU, eval=makeLeafletMaps}
 m  %>% addPolygons()
 ```
 Data source: Statistics New Zealand
@@ -329,7 +334,7 @@ Data source: Statistics New Zealand
 R package:  ```leaflet```
 
 ## Auckland map with income and rent
-```{r auckland_map_AU_income, echo=FALSE}
+```{r auckland_map_AU_income, echo=FALSE, eval=makeLeafletMaps}
 
 
 income <- m  %>% addPolygons(fillColor=~incomeColors(medHIncome2013), color = "white", weight = 1, fillOpacity = 1) %>%   addLegend("bottomright", pal = incomeColors, values = auckland_small$medHIncome2013, 

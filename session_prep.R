@@ -1,0 +1,23 @@
+# session_prep.R 
+# Installs R packages required for this introduction to making maps in R.
+
+requiredPackages <- c("knitr",  "tidyverse","ggplot2", "maps", 
+                      "maptools", "rgdal", "rgeos", 
+                      "sp", "ggplot2", "leaflet", "readxl", "readr", 
+                      "ggmap",  "tmap", "tmaptools" )
+
+# ("knitr",  "tidyverse",  "rgdal", "rgeos", 
+#   "ggmap",  "tmap", "leaflet", "readxl", "readr", 
+#   "ggplot2", "maps",  "maptools", "sp"
+# )
+
+# Install all packages
+install.packages(requiredPackages, dependencies=TRUE)
+
+
+# OR install packages not on system (not recommended as may have version issues)
+# packages_to_install <- requiredPackages[!(requiredPackages %in% installed.packages()[,1])]
+# if(length(packages_to_install)>0 ) install.packages(packages_to_install, dependencies=TRUE)
+
+# Load
+lapply(requiredPackages, library, character.only=TRUE)

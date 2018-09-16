@@ -118,7 +118,7 @@ w +   geom_point(data = pink_gc2, aes(x = lon, y = lat, group=NULL),col="hotpink
 
 R package:  ```ggplot2```
 
-## World map showing population by country
+## World map showing life expectancy by country
 
 
 ```{r world_life_exp, echo=FALSE}
